@@ -1,0 +1,75 @@
+# $(SRCS)
+# $(PROGRAM)
+# $(OBJDIR)
+# $(INSTALLDIR)
+# $(INCFLG)
+# $(CFLAG)
+# $(CC)
+# $(STATIC_LIBS)
+
+# Set OBJDIR
+ifeq  ($(strip $(OBJDIR)),)
+	ifneq ($(strip $(SDK_OUT_OBJ_BIN_DIR)),) 
+		ifneq ($(strip $(PROJECT)),) 
+			OBJDIR     :=$(SDK_OUT_OBJ_BIN_DIR)/$(PROJECT)
+		endif
+	endif
+endif
+
+#Set INSTALLDIR
+ifeq ($(strip $(INSTALLDIR)),)
+	ifneq ($(strip $(SDK_OUT_BIN_DIR)),) 
+		INSTALLDIR :=$(SDK_OUT_BIN_DIR)
+	endif
+endif
+
+#Set DATADIR
+ifeq ($(strip $(DATADIR)),)
+	ifneq ($(strip $(SDK_OUT_DATA_DIR)),) 
+		ifneq ($(strip $(PROJECT)),) 
+			DATADIR :=$(SDK_OUT_DATA_DIR)/$(PROJECT)
+		endif
+	endif
+endif
+
+#Add INCFLG
+ifneq ($(strip $(SDK_OUT_OBJ_INC_DIR)),)
+	INCFLG     +=-I$(SDK_OUT_OBJ_INC_DIR)
+endif
+
+#コンパイル対象
+OBJS :=$(SRCS:%.c=$(OBJDIR)/%.o)
+DEPS :=$(SRCS:%.c=$(OBJDIR)/%.d)
+
+
+#デフォルトターゲット
+all: $(OBJDIR)/$(PROGRAM)
+-include $(DEPS)
+
+# プライマリターゲット
+$(OBJDIR)/$(PROGRAM): $(OBJS) $(STATIC_LIBS)
+	$(CC) $(INCFLG) -o $@ $(STATIC_LIBS) $^
+
+# サフィックスルール適用対象の拡張子の定義                                                                                                 
+.SUFFIXES: .c .o
+# サフィックスルール(拡張子が ”.o” のファイルは拡張子 ”.c”のファイルに依存して                                                         
+$(OBJDIR)/%.o:%.c
+	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+	$(CC) $(CFLAGS) $(INCFLG) -o $@ -c -MMD -MP -MF $(@:%.o=%.d) $<
+
+# 実行ファイルをインストールディレクトリにコピー
+install: $(OBJDIR)/$(PROGRAM)
+	@if [ ! -d $(INSTALLDIR) ]; then mkdir -p $(INSTALLDIR); fi 
+	cp $(OBJDIR)/$(PROGRAM) $(INSTALLDIR)/
+	@if [ ! -d $(DATADIR) ]; then mkdir -p $(DATADIR); fi 
+	@if [  -n "$(COPY_FILES)" ]; then cp $(COPY_FILES) $(DATADIR)/; fi 
+	
+
+# ファイル削除用ターゲット
+.PHONY: clean
+clean:
+	rm -f  $(INSTALLDIR)/$(PROGRAM)
+	rm -rf $(DATADIR)
+	rm -rf $(OBJDIR)
+
+

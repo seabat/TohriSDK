@@ -1,0 +1,7 @@
+TOHRI_SDK_VERSION = 0.1.1  
+
+[History]  
+Version  | Date       | Comment  
+---------+------------+------------------------------  
+0.1.1    | 2014/09/28 | Add a sample application of console-progress  
+0.1.2    | 2014/11/25 | Add sbt-web-server and update include files for building  

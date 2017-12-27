@@ -1,0 +1,85 @@
+# $(SRCS)
+# $(PROGRAM)
+# $(OBJDIR)
+# $(INSTALLDIR)
+# $(INCFLG)
+# $(CFLAG)
+# $(AR)
+# $(ARFLAG)
+# $(INCS) 
+# $(INCLUDEDIR)
+# $(OBJ_INCLUDEDIR)
+
+
+# Set OBJDIR
+ifeq  ($(strip $(OBJDIR)),)
+	ifneq ($(strip $(SDK_OUT_OBJ_LIB_DIR)),) 
+		ifneq ($(strip $(PROJECT)),) 
+			OBJDIR     :=$(SDK_OUT_OBJ_LIB_DIR)/$(PROJECT)
+		endif
+	endif
+endif
+
+#Set INSTALLDIR
+ifeq ($(strip $(INSTALLDIR)),)
+	ifneq ($(strip $(SDK_OUT_LIB_DIR)),) 
+		INSTALLDIR :=$(SDK_OUT_LIB_DIR)
+	endif
+endif
+
+#Set INCLUDEDIR
+ifeq ($(strip $(INCLUDEDIR)),)
+	ifneq ($(strip $(SDK_OUT_INC_DIR)),) 
+		ifneq ($(strip $(PROJECT)),) 
+			INCLUDEDIR :=$(SDK_OUT_INC_DIR)/$(PROJECT)
+		endif
+	endif
+endif
+
+#Set OBJ_INCLUDEDIR
+ifeq ($(strip $(OBJ_INCLUDEDIR)),)
+	ifneq ($(strip $(SDK_OUT_OBJ_INC_DIR)),) 
+		ifneq ($(strip $(PROJECT)),) 
+			OBJ_INCLUDEDIR :=$(SDK_OUT_OBJ_INC_DIR)/$(PROJECT)
+		endif
+	endif
+endif
+
+ifneq ($(strip $(SDK_OUT_OBJ_INC_DIR)),) 
+	INCFLG     +=-I$(SDK_OUT_OBJ_INC_DIR)
+endif
+
+
+#オブジェクトファイル一覧 "gcc -c"で生成されるファイル 
+OBJS   :=$(SRCS:%.c=$(OBJDIR)/%.o)
+DEPS   :=$(SRCS:%.c=$(OBJDIR)/%.d)
+
+
+#デフォルトターゲット
+all: $(OBJDIR)/$(PROGRAM)
+-include $(DEPS)
+
+# プライマリターゲット
+$(OBJDIR)/$(PROGRAM): $(OBJS)
+	$(AR) $(ARFLAG) $@ $^
+	@if [ ! -d $(OBJ_INCLUDEDIR) ]; then mkdir -p $(OBJ_INCLUDEDIR); fi 
+	cp $(INCS) $(OBJ_INCLUDEDIR)/
+
+# サフィックスルール適用対象の拡張子の定義
+.SUFFIXES: .c .o
+# サフィックスルール(拡張子が ”.o” のファイルは拡張子 ”.c”のファイルに依存している)
+$(OBJDIR)/%.o:%.c
+	@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+	$(CC) $(CFLAGS) $(INCFLG) -o $@ -c -MMD -MP -MF $(@:%.o=%.d) $<
+
+install: $(OBJDIR)/$(PROGRAM)
+	@if [ ! -d $(INSTALLDIR) ]; then mkdir -p $(INSTALLDIR); fi 
+	cp $(OBJDIR)/$(PROGRAM) $(INSTALLDIR)/
+	@if [ ! -d $(INCLUDEDIR) ]; then mkdir -p $(INCLUDEDIR); fi 
+	cp $(INCS) $(INCLUDEDIR)/
+
+# ファイル削除用ターゲット
+.PHONY: clean
+clean:
+	rm -f $(INSTALLDIR)/$(PROGRAM)
+	rm -rf $(OBJDIR)
