@@ -4,7 +4,7 @@ Requirements
 + Compiler  
 + C standard library  
 
-###Compiler
+### Compiler
 
 GNU Compiler Collection (GCC)  
 The gcc command can be used to confirm that the GCC is already installed on the system:
@@ -19,7 +19,7 @@ If there is a message such as command not found, which usually indicates that it
 
 	such as command not found
 
-###C standard library
+### C standard library
 
 glibc  
 The locate command can be used to confirm that the glibc is already installed on the system:
