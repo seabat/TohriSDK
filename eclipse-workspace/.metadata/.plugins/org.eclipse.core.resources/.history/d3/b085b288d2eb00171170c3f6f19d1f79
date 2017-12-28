@@ -15,7 +15,7 @@ CC      = gcc
 #コンパイルオプションを指定
 #  -Wallはすべてのワーニングを省略せずに要求するオプション
 #  -O2は最適化レベル2を表す。2は最適化の推奨レベル。
-CFLAGS  = -Wall -O2
+CFLAGS  = -Wall -O0 -g
 
 ifeq ($(TOHRI_SDK_USE),true)
 	#--------------------------------------
@@ -35,7 +35,5 @@ else
 	OBJDIR:= obj
 	#Set a directory to install
 	INSTALLDIR :=.
-	#Update CFLAG for debug
-    CFLAGS  = -Wall -O0 -ggdb3
 	include ../../../../build/Makefile_build_app.in
 endif

@@ -36,6 +36,6 @@ else
 	#Set a directory to install
 	INSTALLDIR :=.
 	#Update CFLAG for debug
-    CFLAGS  = -Wall -O0 -ggdb3
+	CFLAGS  = -Wall -O0 -ggdb3
 	include ../../../../build/Makefile_build_app.in
 endif

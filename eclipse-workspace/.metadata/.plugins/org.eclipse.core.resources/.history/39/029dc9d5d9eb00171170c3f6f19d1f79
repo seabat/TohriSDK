@@ -1,0 +1,3 @@
+obj/src/sub.o: src/sub.c inc/common.h
+
+inc/common.h:

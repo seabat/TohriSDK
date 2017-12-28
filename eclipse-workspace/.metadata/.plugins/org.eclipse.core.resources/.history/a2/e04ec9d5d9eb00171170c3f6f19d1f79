@@ -1,0 +1,3 @@
+obj/src/log.o: src/log.c inc/common.h
+
+inc/common.h:
